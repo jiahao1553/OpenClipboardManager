@@ -124,13 +124,13 @@ namespace OCMApp.Favorites
                             switch (Favorite.Type)
                             {
                                 case DAL.Models.Favorite.ContentType.Text:
-                                    Internal.Global.Instance.PostAndGet(FavoriteContentText.Content);
+                                    Internal.Global.Instance.Post(FavoriteContentText.Content);
                                     break;
                                 case DAL.Models.Favorite.ContentType.Image:
-                                    Internal.Global.Instance.PostAndGet(FavoriteContentImage.Content);
+                                    Internal.Global.Instance.Post(FavoriteContentImage.Content);
                                     break;
                                 case DAL.Models.Favorite.ContentType.File:
-                                    Internal.Global.Instance.PostAndGet(FavoriteContentFile.GetListValue());
+                                    Internal.Global.Instance.Post(FavoriteContentFile.GetListValue());
                                     break;
                             }
                         });

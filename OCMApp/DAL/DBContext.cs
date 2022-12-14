@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using OCMClip.ClipHandler.Entities;
+using Serilog;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace OCMApp.DAL
     public class DBContext
     {
         internal SQLiteAsyncConnection DB = null;
+        const int ClipboardItemMax = 30;
 
         public DBContext(string path)
         {
@@ -33,16 +35,19 @@ namespace OCMApp.DAL
         #region Clip insert
         public void InsertClipText(Models.ClipText clipText)
         {
+            DeleteOffLimitItems<Models.ClipText>(ClipboardItemMax);
             DB.InsertAsync(clipText);
         }
 
         public void InsertClipImage(Models.ClipImage clip)
         {
+            DeleteOffLimitItems<Models.ClipImage>(ClipboardItemMax);
             DB.InsertAsync(clip);
         }
 
         public void InsertClipFile(Models.ClipFile clip)
         {
+            DeleteOffLimitItems<Models.ClipFile>(ClipboardItemMax);
             DB.InsertAsync(clip);
         }
         #endregion
@@ -81,6 +86,23 @@ namespace OCMApp.DAL
         }
         #endregion
 
+        #region Clip get by where
+        public Task<List<Models.ClipText>> GetClipText(string value, Enums.TextDataFormat textDataFormat)
+        {
+            return DB.Table<Models.ClipText>().Where(t => t.Value == value && t.SourceTextFormat == textDataFormat).OrderByDescending(x => x.DateCreated).ToListAsync();
+        }
+
+        public Task<List<Models.ClipImage>> GetClipImage(byte[] value, Enums.ImageFormatType formatType)
+        {
+            return DB.Table<Models.ClipImage>().Where(t => t.Value == value && t.FormatType == formatType).OrderByDescending(x => x.DateCreated).ToListAsync();
+        }
+
+        public Task<List<Models.ClipFile>> GetClipFile(string value)
+        {
+            return DB.Table<Models.ClipFile>().Where(t => t.Value == value).OrderByDescending(x => x.DateCreated).ToListAsync();
+        }
+        #endregion
+
         public async Task<int> ItemsToDelete(string appName = null, DateTime? dateBefore = null)
         {
             int textItems = await DB.Table<Models.ClipText>()
@@ -113,6 +135,25 @@ namespace OCMApp.DAL
             } catch (Exception ex)
             {
                 Log.Error(ex, $"Error while deleting Items => Query: appName={appName} dateBefore={dateBefore}");
+                return false;
+            }
+        }
+
+        public bool DeleteOffLimitItems<T>(int limit) where T: Models.Clip, new()
+        {
+            try
+            {
+                var item = DB.Table<T>().OrderBy(t => t.DateCreated).Skip(limit - 1).Take(1).FirstOrDefaultAsync().Result;
+                if (item != null)
+                {
+                    var deleted = DB.Table<T>().DeleteAsync(x => x.DateCreated < item.DateCreated).Result;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while deleting Items => Query: limit={limit}");
                 return false;
             }
         }

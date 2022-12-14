@@ -105,7 +105,7 @@ namespace OCMApp
             }
         }
 
-        private void CopyItem_Click(object sender, RoutedEventArgs e)
+        private void CopyPasteItem_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -113,16 +113,20 @@ namespace OCMApp
                 {
                     if (button.DataContext is DAL.Models.ClipText textEntity)
                     {
-                        Internal.Global.Instance.PostAndGet(textEntity);
+                        Internal.Global.Instance.Post(textEntity);
                     }
                     else if (button.DataContext is DAL.Models.ClipImage imageEntity)
                     {
-                        Internal.Global.Instance.PostAndGet(imageEntity);
+                        Internal.Global.Instance.Post(imageEntity);
                     }
                     else if (button.DataContext is DAL.Models.ClipFile fileEntity)
                     {
-                        Internal.Global.Instance.PostAndGet(fileEntity);
+                        Internal.Global.Instance.Post(fileEntity);
                     }
+
+                    OCMClip.ClipHandler.Nativ.SetForegroundWindow(Internal.Global.Instance.LastWindowIntPtr);
+                    Internal.Global.Instance.HotKey.SendKeys("^v");
+                    base.Close();
                 }
             }
             catch (Exception ex)

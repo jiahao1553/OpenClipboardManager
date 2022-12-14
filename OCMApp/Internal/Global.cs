@@ -55,6 +55,7 @@ namespace OCMApp.Internal
         public Localize Localize { get; private set; }
         public DAL.DBContext DBContext { get; private set; }
         public DAL.Models.LastClip LastClip { get; private set; }
+        public IntPtr LastWindowIntPtr { get; private set; }
         public bool InitError { get; private set; } = false;
         public bool FirstStart { get; private set; } = false;
         public Settings.WindowState FavoriteWindowState { get; private set; } = new Settings.WindowState();
@@ -308,6 +309,7 @@ namespace OCMApp.Internal
         {
             try
             {
+                Console.WriteLine("Key detected");
                 if (clipboardHotKeyPost != null)
                     HotKey.Remove(clipboardHotKeyPost.Id);
                 clipboardHotKeyPost = new OCMHotKey.HotKey(Settings.ClipPostKey, Settings.ClipPostKeyModifier, HotKeyPostClipboardPressed, HotKey_Event_ClipboardPaste);
@@ -418,6 +420,55 @@ namespace OCMApp.Internal
         #endregion
 
         #region Clipboard
+        public void Post(string value)
+        {
+            try
+            {
+                Clip.Post(value, OCMClip.ClipHandler.Entities.Enums.TextDataFormat.Text);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Post Text Clipboard");
+            }
+        }
+
+        public void Post(byte[] value)
+        {
+            try
+            {
+                Clip.Post(OCMClip.ClipHandler.ConvertImage.ByteArrayToImage(value));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Post Byte Array Clipboard");
+            }
+        }
+
+        public void Post(List<string> value)
+        {
+            try
+            {
+                Clip.Post(value);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Post File list Clipboard");
+            }
+        }
+        public void Post(DAL.Models.ClipText textEntity)
+        {
+            Post(textEntity.Value);
+        }
+
+        public void Post(DAL.Models.ClipImage imageEntity)
+        {
+            Post(imageEntity.Value);
+        }
+
+        public void Post(DAL.Models.ClipFile fileEntity)
+        {
+            Post(fileEntity.GetListValue());
+        }
         public void PostAndGet(string value)
         {
             try
@@ -479,7 +530,8 @@ namespace OCMApp.Internal
                 if (AllowClip(e))
                 {
                     LastClip.ClipText = new DAL.Models.ClipText(e);
-                    DBContext.InsertClipText(LastClip.ClipText);
+                    if (DBContext.GetClipText(LastClip.ClipText.Value, LastClip.ClipText.SourceTextFormat).Result.Count() < 1)
+                        DBContext.InsertClipText(LastClip.ClipText);
                 }
             }
             catch (Exception ex)
@@ -495,7 +547,8 @@ namespace OCMApp.Internal
                 if (AllowClip(e))
                 {
                     LastClip.ClipImage = new DAL.Models.ClipImage(e);
-                    DBContext.InsertClipImage(LastClip.ClipImage);
+                    if (DBContext.GetClipImage(LastClip.ClipImage.Value, LastClip.ClipImage.FormatType).Result.Count() < 1)
+                        DBContext.InsertClipImage(LastClip.ClipImage);
                 }
             }
             catch (Exception ex)
@@ -511,7 +564,8 @@ namespace OCMApp.Internal
                 if (AllowClip(e))
                 {
                     LastClip.ClipFile = new DAL.Models.ClipFile(e);
-                    DBContext.InsertClipFile(LastClip.ClipFile);
+                    if (DBContext.GetClipFile(LastClip.ClipFile.Value).Result.Count() < 1)
+                        DBContext.InsertClipFile(LastClip.ClipFile);
                 }
             }
             catch (Exception ex)
@@ -538,8 +592,13 @@ namespace OCMApp.Internal
         {
             try
             {
+                var position = OCMClip.ClipHandler.Nativ.GetActiveWindowPosition();
+                LastWindowIntPtr = position;
+
                 if (LastClip != null)
                 {
+                    ShowMainWindow();
+                    return;
                     bool hasPostValue = false;
                     if (LastClip.ClipFile != null && LastClip.ClipFile.DateCreated > LastClip.ClipImage?.DateCreated && LastClip.ClipFile.DateCreated > LastClip.ClipText?.DateCreated)
                     {
@@ -613,6 +672,13 @@ namespace OCMApp.Internal
             }
         }
         #endregion
+
+        public void ShowMainWindow()
+        {
+            var mainWindow = new MainWindow();
+            mainWindow.Show();
+            mainWindow.Activate();
+        }
 
         #region Favorites Window
         private WeakReference<Favorites.FavoritesWindow> weakFavorites;

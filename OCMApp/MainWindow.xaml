@@ -87,9 +87,9 @@
                                                     <iconPacks:PackIconModern Width="16" Height="10" Kind="Delete" />
                                                 </StackPanel>
                                             </Button>
-                                            <Button x:Name="CopyItem" Click="CopyItem_Click" Height="10" MaxHeight="1" Margin="0">
+                                            <Button x:Name="PasteItem" Click="CopyPasteItem_Click" Height="10" MaxHeight="1" Margin="0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="PageCopy" />
+                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="ClipboardPaste" />
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
@@ -136,9 +136,9 @@
                                                     <iconPacks:PackIconModern Width="16" Height="10" Kind="Delete" />
                                                 </StackPanel>
                                             </Button>
-                                            <Button x:Name="CopyItem" Click="CopyItem_Click" Height="10" MaxHeight="1" Margin="0">
+                                            <Button x:Name="CopyPasteItem" Click="CopyPasteItem_Click" Height="10" MaxHeight="1" Margin="0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="PageCopy" />
+                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="ClipboardPaste" />
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>
@@ -193,9 +193,9 @@
                                                     <iconPacks:PackIconModern Width="16" Height="10" Kind="Delete" />
                                                 </StackPanel>
                                             </Button>
-                                            <Button x:Name="CopyItem" Click="CopyItem_Click" Height="10" MaxHeight="1" Margin="0">
+                                            <Button x:Name="PasteItem" Click="CopyPasteItem_Click" Height="10" MaxHeight="1" Margin="0">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="PageCopy" />
+                                                    <iconPacks:PackIconModern Width="16" Height="10" Kind="ClipboardPaste" />
                                                 </StackPanel>
                                             </Button>
                                         </StackPanel>

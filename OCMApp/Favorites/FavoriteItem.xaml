@@ -32,7 +32,7 @@
             </Button>
             <Button x:Name="CopyItem" Command="{Binding CopyCommand}" Height="10" MaxHeight="1" Margin="0">
                 <StackPanel Orientation="Horizontal">
-                    <iconPacks:PackIconModern Width="16" Height="10" Kind="PageCopy" />
+                    <iconPacks:PackIconModern Width="16" Height="10" Kind="ClipboardPaste" />
                 </StackPanel>
             </Button>
         </StackPanel>

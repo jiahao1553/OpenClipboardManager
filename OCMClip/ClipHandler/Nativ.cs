@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OCMClip.ClipHandler
 {
-    internal static class Nativ
+    public static class Nativ
     {
         [DllImport("user32.dll")]
         internal static extern IntPtr GetForegroundWindow();
@@ -121,5 +121,25 @@ namespace OCMClip.ClipHandler
 
             return CompareMemCmp(new Bitmap(b1), new Bitmap(b2));
         }
+
+        // Get previous active window
+        public static IntPtr GetActiveWindowPosition()
+        {
+            try
+            {
+                IntPtr hwnd = GetForegroundWindow();
+
+                return hwnd;
+            }
+            catch (Exception ex)
+            {
+                OCMClip.logger.Error(ex);
+                return IntPtr.Zero;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
     }
 }
